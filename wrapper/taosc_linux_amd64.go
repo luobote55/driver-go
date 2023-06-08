@@ -1,11 +1,10 @@
+//go:build linux && amd64
+
 package wrapper
 
 /*
 #cgo CFLAGS: -IC:/TDengine/include -I/usr/include
 #cgo linux amd64 LDFLAGS: -L/usr/lib -ltaos
-#cgo linux arm64 LDFLAGS: -L/usr/aarch64-linux-gnu/lib -ltaos
-#cgo windows LDFLAGS: -LC:/TDengine/driver -ltaos
-#cgo darwin LDFLAGS: -L/usr/local/lib -ltaos
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
