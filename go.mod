@@ -1,4 +1,4 @@
-module github.com/taosdata/driver-go/v3
+module github.com/luobote55/driver-go/v3
 
 go 1.14
 

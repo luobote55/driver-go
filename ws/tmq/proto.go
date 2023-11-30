@@ -3,7 +3,7 @@ package tmq
 import (
 	"encoding/json"
 
-	"github.com/taosdata/driver-go/v3/common/tmq"
+	"github.com/luobote55/driver-go/v3/common/tmq"
 )
 
 type SubscribeReq struct {

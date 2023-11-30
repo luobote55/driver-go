@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/luobote55/driver-go/v3/common"
+	"github.com/luobote55/driver-go/v3/wrapper/cgo"
 	"github.com/stretchr/testify/assert"
-	"github.com/taosdata/driver-go/v3/common"
-	"github.com/taosdata/driver-go/v3/wrapper/cgo"
 )
 
 func TestNotify(t *testing.T) {
