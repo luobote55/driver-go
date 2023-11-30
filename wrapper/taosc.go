@@ -1,10 +1,10 @@
-//go:build darwin
-// +build darwin
-
 package wrapper
 
 /*
 #cgo CFLAGS: -IC:/TDengine/include -I/usr/include
+#cgo linux,amd64 LDFLAGS: -L/usr/lib -ltaos
+#cgo linux,arm64 LDFLAGS: -L/usr/aarch64-linux-gnu/lib -ltaos
+#cgo windows LDFLAGS: -LC:/TDengine/driver -ltaos
 #cgo darwin LDFLAGS: -L/usr/local/lib -ltaos
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,8 +34,8 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/luobote55/driver-go/v3/errors"
-	"github.com/luobote55/driver-go/v3/wrapper/cgo"
+	"github.com/taosdata/driver-go/v3/errors"
+	"github.com/taosdata/driver-go/v3/wrapper/cgo"
 )
 
 // TaosFreeResult void taos_free_result(TAOS_RES *res);

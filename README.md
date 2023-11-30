@@ -17,6 +17,8 @@ v2 is not compatible with v3 version and corresponds to the TDengine version as 
 | v3.0.3                | 3.0.1.5+             |
 | v3.0.4                | 3.0.2.2+             |
 | v3.1.0                | 3.0.2.2+             |
+| v3.3.1                | 3.0.4.1+             |
+| v3.5.0                | 3.0.5.0+             |
 
 ## Install
 
@@ -31,7 +33,7 @@ import taosSql：
 ```go
 import (
     "database/sql"
-    _ "github.com/luobote55/driver-go/v3/taosSql"
+    _ "github.com/taosdata/driver-go/v3/taosSql"
 )
 ```
 
@@ -44,7 +46,7 @@ go mod tidy
 Or `go get` to directly install it:
 
 ```sh
-go get github.com/luobote55/driver-go/v3/taosSql
+go get github.com/taosdata/driver-go/v3/taosSql
 ```
 
 ## Usage
@@ -61,7 +63,7 @@ import (
     "fmt"
     "time"
 
-    _ "github.com/luobote55/driver-go/v3/taosSql"
+    _ "github.com/taosdata/driver-go/v3/taosSql"
 )
 
 func main() {
@@ -153,6 +155,18 @@ Commit message:
 ````go
 func (c *Consumer) Commit() ([]tmq.TopicPartition, error)
 ````
+
+Get assignment:
+
+```go
+func (c *Consumer) Assignment() (partitions []tmq.TopicPartition, err error)
+```
+
+Seek offset:
+
+```go
+func (c *Consumer) Seek(partition tmq.TopicPartition, ignoredTimeoutMs int) error
+```
 
 Unsubscribe:
 
@@ -264,7 +278,7 @@ import (
     "fmt"
     "time"
 
-    _ "github.com/luobote55/driver-go/v3/taosRestful"
+    _ "github.com/taosdata/driver-go/v3/taosRestful"
 )
 
 func main() {
@@ -311,7 +325,7 @@ import
 ```go
 import (
     "database/sql"
-    _ "github.com/luobote55/driver-go/v3/taosRestful"
+    _ "github.com/taosdata/driver-go/v3/taosRestful"
 )
 ```
 
@@ -348,7 +362,7 @@ import (
     "fmt"
     "time"
 
-    _ "github.com/luobote55/driver-go/v3/taosRestful"
+    _ "github.com/taosdata/driver-go/v3/taosRestful"
 )
 
 func main() {
@@ -400,7 +414,7 @@ import (
     "fmt"
     "time"
 
-    _ "github.com/luobote55/driver-go/v3/taosWS"
+    _ "github.com/taosdata/driver-go/v3/taosWS"
 )
 
 func main() {
@@ -447,7 +461,7 @@ import
 ```go
 import (
     "database/sql"
-    _ "github.com/luobote55/driver-go/v3/taosWS"
+    _ "github.com/taosdata/driver-go/v3/taosWS"
 )
 ```
 
@@ -533,6 +547,14 @@ Use tmq over websocket. The server needs to start taoAdapter.
 - `func (c *Consumer) Commit() ([]tmq.TopicPartition, error)`
 
  Commit message.
+
+- `func (c *Consumer) Assignment() (partitions []tmq.TopicPartition, err error)`
+
+ Get assignment.
+
+- `func (c *Consumer) Seek(partition tmq.TopicPartition, ignoredTimeoutMs int) error`
+
+ Seek offset.
 
 - `func (c *Consumer) Close() error`
 

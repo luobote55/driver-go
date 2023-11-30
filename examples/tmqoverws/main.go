@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/luobote55/driver-go/v3/common"
-	tmqcommon "github.com/luobote55/driver-go/v3/common/tmq"
-	_ "github.com/luobote55/driver-go/v3/taosRestful"
-	"github.com/luobote55/driver-go/v3/ws/tmq"
+	"github.com/taosdata/driver-go/v3/common"
+	tmqcommon "github.com/taosdata/driver-go/v3/common/tmq"
+	_ "github.com/taosdata/driver-go/v3/taosRestful"
+	"github.com/taosdata/driver-go/v3/ws/tmq"
 )
 
 func main() {
@@ -60,17 +60,42 @@ func main() {
 		}
 	}()
 	for i := 0; i < 5; i++ {
-		ev := consumer.Poll(0)
+		ev := consumer.Poll(500)
 		if ev != nil {
 			switch e := ev.(type) {
 			case *tmqcommon.DataMessage:
-				fmt.Printf("get message:%v", e)
+				fmt.Printf("get message:%v\n", e)
 			case tmqcommon.Error:
 				fmt.Printf("%% Error: %v: %v\n", e.Code(), e)
 				panic(e)
 			}
+			consumer.Commit()
 		}
 	}
+	partitions, err := consumer.Assignment()
+	if err != nil {
+		panic(err)
+	}
+	for i := 0; i < len(partitions); i++ {
+		fmt.Println(partitions[i])
+		err = consumer.Seek(tmqcommon.TopicPartition{
+			Topic:     partitions[i].Topic,
+			Partition: partitions[i].Partition,
+			Offset:    0,
+		}, 0)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	partitions, err = consumer.Assignment()
+	if err != nil {
+		panic(err)
+	}
+	for i := 0; i < len(partitions); i++ {
+		fmt.Println(partitions[i])
+	}
+
 	err = consumer.Close()
 	if err != nil {
 		panic(err)

@@ -5,11 +5,11 @@ import (
 	"unsafe"
 
 	jsoniter "github.com/json-iterator/go"
-	"github.com/luobote55/driver-go/v3/common"
-	"github.com/luobote55/driver-go/v3/common/parser"
-	"github.com/luobote55/driver-go/v3/common/tmq"
-	taosError "github.com/luobote55/driver-go/v3/errors"
-	"github.com/luobote55/driver-go/v3/wrapper"
+	"github.com/taosdata/driver-go/v3/common"
+	"github.com/taosdata/driver-go/v3/common/parser"
+	"github.com/taosdata/driver-go/v3/common/tmq"
+	taosError "github.com/taosdata/driver-go/v3/errors"
+	"github.com/taosdata/driver-go/v3/wrapper"
 )
 
 type Consumer struct {
@@ -94,6 +94,7 @@ func (c *Consumer) Poll(timeoutMs int) tmq.Event {
 	topic := wrapper.TMQGetTopicName(message)
 	db := wrapper.TMQGetDBName(message)
 	resultType := wrapper.TMQGetResType(message)
+	offset := tmq.Offset(wrapper.TMQGetVgroupOffset(message))
 	switch resultType {
 	case common.TMQ_RES_DATA:
 		result := &tmq.DataMessage{}
@@ -104,6 +105,7 @@ func (c *Consumer) Poll(timeoutMs int) tmq.Event {
 			return tmq.NewTMQErrorWithErr(err)
 		}
 		result.SetData(data)
+		result.SetOffset(offset)
 		wrapper.TaosFreeResult(message)
 		return result
 	case common.TMQ_RES_TABLE_META:
@@ -115,12 +117,14 @@ func (c *Consumer) Poll(timeoutMs int) tmq.Event {
 			return tmq.NewTMQErrorWithErr(err)
 		}
 		result.SetMeta(meta)
+		result.SetOffset(offset)
 		wrapper.TaosFreeResult(message)
 		return result
 	case common.TMQ_RES_METADATA:
 		result := &tmq.MetaDataMessage{}
 		result.SetDbName(db)
 		result.SetTopic(topic)
+		result.SetOffset(offset)
 		data, err := c.getData(message)
 		if err != nil {
 			return tmq.NewTMQErrorWithErr(err)
@@ -193,6 +197,42 @@ func (c *Consumer) doCommit(message unsafe.Pointer) ([]tmq.TopicPartition, error
 		return nil, taosError.NewError(int(errCode), errStr)
 	}
 	return nil, nil
+}
+
+func (c *Consumer) Assignment() (partitions []tmq.TopicPartition, err error) {
+	errCode, list := wrapper.TMQSubscription(c.cConsumer)
+	if errCode != taosError.SUCCESS {
+		errStr := wrapper.TMQErr2Str(errCode)
+		return nil, taosError.NewError(int(errCode), errStr)
+	}
+	defer wrapper.TMQListDestroy(list)
+	size := wrapper.TMQListGetSize(list)
+	topics := wrapper.TMQListToCArray(list, int(size))
+	for _, topic := range topics {
+		errCode, assignment := wrapper.TMQGetTopicAssignment(c.cConsumer, topic)
+		if errCode != taosError.SUCCESS {
+			errStr := wrapper.TMQErr2Str(errCode)
+			return nil, taosError.NewError(int(errCode), errStr)
+		}
+		for i := 0; i < len(assignment); i++ {
+			topicName := topic
+			partitions = append(partitions, tmq.TopicPartition{
+				Topic:     &topicName,
+				Partition: assignment[i].VGroupID,
+				Offset:    tmq.Offset(assignment[i].Offset),
+			})
+		}
+	}
+	return partitions, nil
+}
+
+func (c *Consumer) Seek(partition tmq.TopicPartition, ignoredTimeoutMs int) error {
+	errCode := wrapper.TMQOffsetSeek(c.cConsumer, *partition.Topic, partition.Partition, int64(partition.Offset))
+	if errCode != taosError.SUCCESS {
+		errStr := wrapper.TMQErr2Str(errCode)
+		return taosError.NewError(int(errCode), errStr)
+	}
+	return nil
 }
 
 // Close release consumer

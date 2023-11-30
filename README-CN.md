@@ -17,6 +17,8 @@ v2 与 v3 版本不兼容，与 TDengine 版本对应如下：
 | v3.0.3           | 3.0.1.5+        |
 | v3.0.4           | 3.0.2.2+        |
 | v3.1.0           | 3.0.2.2+        |
+| v3.3.1           | 3.0.4.1+        |
+| v3.5.0           | 3.0.5.0+        |
 
 ## 安装
 
@@ -31,7 +33,7 @@ go mod init taos-demo
 ```go
 import (
     "database/sql"
-    _ "github.com/luobote55/driver-go/v3/taosSql"
+    _ "github.com/taosdata/driver-go/v3/taosSql"
 )
 ```
 
@@ -44,7 +46,7 @@ go mod tidy
 或通过 `go get` 直接下载安装：
 
 ```sh
-go get github.com/luobote55/driver-go/v3/taosSql
+go get github.com/taosdata/driver-go/v3/taosSql
 ```
 
 ## 用法
@@ -61,7 +63,7 @@ import (
     "fmt"
     "time"
 
-    _ "github.com/luobote55/driver-go/v3/taosSql"
+    _ "github.com/taosdata/driver-go/v3/taosSql"
 )
 
 func main() {
@@ -155,6 +157,18 @@ func (c *Consumer) Poll(timeoutMs int) tmq.Event
 
 ```go
 func (c *Consumer) Commit() ([]tmq.TopicPartition, error)
+```
+
+获取消费进度:
+
+```go
+func (c *Consumer) Assignment() (partitions []tmq.TopicPartition, err error)
+```
+
+按照指定的进度消费:
+
+```go
+func (c *Consumer) Seek(partition tmq.TopicPartition, ignoredTimeoutMs int) error
 ```
 
 取消订阅：
@@ -267,7 +281,7 @@ import (
     "fmt"
     "time"
 
-    _ "github.com/luobote55/driver-go/v3/taosRestful"
+    _ "github.com/taosdata/driver-go/v3/taosRestful"
 )
 
 func main() {
@@ -314,7 +328,7 @@ func main() {
 ```go
 import (
     "database/sql"
-    _ "github.com/luobote55/driver-go/v3/taosRestful"
+    _ "github.com/taosdata/driver-go/v3/taosRestful"
 )
 ```
 
@@ -349,7 +363,7 @@ import (
     "fmt"
     "time"
 
-    _ "github.com/luobote55/driver-go/v3/taosRestful"
+    _ "github.com/taosdata/driver-go/v3/taosRestful"
 )
 
 func main() {
@@ -401,7 +415,7 @@ import (
     "fmt"
     "time"
 
-    _ "github.com/luobote55/driver-go/v3/taosWS"
+    _ "github.com/taosdata/driver-go/v3/taosWS"
 )
 
 func main() {
@@ -448,7 +462,7 @@ func main() {
 ```go
 import (
     "database/sql"
-    _ "github.com/luobote55/driver-go/v3/taosWS"
+    _ "github.com/taosdata/driver-go/v3/taosWS"
 )
 ```
 
@@ -532,6 +546,14 @@ DSN 格式为：
 - `func (c *Consumer) Commit() ([]tmq.TopicPartition, error)`
 
  提交消息。
+
+- `func (c *Consumer) Assignment() (partitions []tmq.TopicPartition, err error)`
+
+ 获取消费进度。
+
+- `func (c *Consumer) Seek(partition tmq.TopicPartition, ignoredTimeoutMs int) error`
+
+ 按照指定的进度消费。
 
 - `func (c *Consumer) Close() error`
 

@@ -5,7 +5,7 @@ import (
 	"io"
 	"reflect"
 
-	"github.com/luobote55/driver-go/v3/common"
+	"github.com/taosdata/driver-go/v3/common"
 )
 
 type rows struct {
